@@ -5,6 +5,3 @@ A simple C# console program that can check if a chemical equation is balanced. I
 ## Team Members
 **Current Team Members**
 - Ahkam Nihardeen (CODER/Black Strike CEO)
-- E-Hern (CODER)
-- Timothy Chew (CODER)
-- Perry Luo (DESIGNER/WRITER)
