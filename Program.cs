@@ -32,6 +32,7 @@ namespace ChemistryEquationSolver
                     {
                         Console.WriteLine("Not balanced, dufus");
                     }
+
                     else
                     {
                         Console.WriteLine("HELL YEAH, BALANCING!");
@@ -205,7 +206,7 @@ namespace ChemistryEquationSolver
 
                 foreach (var subst in reactantNoCoefficient)
                 {
-                    repeatIfEnd:
+                repeatIfEnd:
                     if (Char.IsLetter(subst) && currentElement == String.Empty)
                     {
                         currentElement += subst;
