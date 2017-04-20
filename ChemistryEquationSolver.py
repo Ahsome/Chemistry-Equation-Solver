@@ -80,7 +80,6 @@ while True:
                 print("    Number in products exceed reactants by {0}\n\n".format(number_in_product-number_in_reactant)) 
             else:
                 print("    The values are equal \n")
-
         break
 
     elif choice == "BALANCE":
