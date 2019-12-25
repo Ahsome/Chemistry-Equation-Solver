@@ -11,8 +11,6 @@ namespace ChemistryEquationSolver
         public Equation(string equationString)
         {
             AddChemicals(equationString);
-            AddReactantElements();
-            AddProductElements();
         }
 
         private void AddChemicals(string equationString)
@@ -22,86 +20,14 @@ namespace ChemistryEquationSolver
 
             foreach (var reactant in reactants)
             {
-                var chemInfo = ExtractChemicalInformation(reactant);
-                AddToProperty(chemInfo.Coefficient, chemInfo.Name, Reactants);
+                var reactantChemical = new Chemical(reactant);
+                Reactants.Add(reactantChemical);
             }
 
             foreach (var product in products)
             {
-                var chemInfo = ExtractChemicalInformation(product);
-                AddToProperty(chemInfo.Coefficient, chemInfo.Name, Reactants);
-            }
-        }
-
-        private (string Name, int Coefficient) ExtractChemicalInformation(string chemical)
-        {
-            int coefficient = GetCoefficient(chemical);
-            string name = GetName(chemical, coefficient);
-
-            return (name, coefficient);
-        }
-
-        private static string GetName(string chemical, int coefficient)
-        {
-            string name = chemical;
-            if (coefficient != 1)
-            {
-                name = chemical.Substring(coefficient.ToString().Length);
-            }
-
-            return name;
-        }
-
-        private void AddProductElements()
-        {
-            AddElements(Products, ProductsElements);
-        }
-
-        private void AddReactantElements()
-        {
-            AddElements(Reactants, ReactantElements);
-        }
-
-        private void AddElements(Dictionary<string, int> chemicals, Dictionary<string, int> elementProperty)
-        {
-            foreach (var chemical in chemicals.Keys)
-            {
-                StringBuilder elements = new StringBuilder();
-                foreach (char c in chemical)
-                {
-                    if (Char.IsUpper(c) && elements.Length > 0)
-                    {
-                        elements.Append(' ');
-                    };
-                    elements.Append(c);
-                }
-
-                foreach (var elementWithNum in elements.ToString().Split(' '))
-                {
-                    string element = "";
-                    string number = "";
-                    foreach (var c in elementWithNum.ToString())
-                    {
-                        if (Char.IsLetter(c))
-                        {
-                            element += c;
-                        }
-                        else if (Char.IsNumber(c))
-                        {
-                            number += c;
-                        }
-                    }
-
-                    int value;
-                    chemicals.TryGetValue(chemical, out value);
-
-                    if (!number.Equals(""))
-                    {
-                        value *= int.Parse(number);
-                    }
-
-                    AddToProperty(value, element, elementProperty);
-                }
+                var productChemical = new Chemical(product);
+                Products.Add(productChemical);
             }
         }
 
@@ -115,34 +41,31 @@ namespace ChemistryEquationSolver
             return equationString.Split('=')[0].Split('+');
         }
 
-        public Dictionary<string, int> Reactants { get; private set; } = new Dictionary<string, int>();
-        public Dictionary<string, int> Products { get; private set; } = new Dictionary<string, int>();
-        public Dictionary<string, int> ReactantElements { get; private set; } = new Dictionary<string, int>();
-        public Dictionary<string, int> ProductsElements { get; private set; } = new Dictionary<string, int>();
+        public List<Chemical> Reactants { get; private set; } = new List<Chemical>();
+        public List<Chemical> Products { get; private set; } = new List<Chemical>();
 
-        private int GetCoefficient(string reactant)
+        public bool CheckBalanced()
         {
-            string coefficient = "";
-            foreach (var character in reactant)
+            var reactantsElements = new Dictionary<string, int>();
+            var productsElements = new Dictionary<string, int>();
+
+            foreach (var reactant in Reactants)
             {
-                if (Char.IsDigit(character))
+                foreach (var element in reactant.TotalElements.Keys)
                 {
-                    coefficient += character;
-                }
-                else
-                {
-                    break;
+                    AddToProperty(reactant.TotalElements[element], element, reactantsElements);
                 }
             }
-            
-            if (!coefficient.Equals(""))
+
+            foreach (var product in Products)
             {
-                return int.Parse(coefficient);
+                foreach (var element in product.TotalElements.Keys)
+                {
+                    AddToProperty(product.TotalElements[element], element, productsElements);
+                }
             }
-            else
-            {
-                return 1;
-            }
+
+            return IsEqual(reactantsElements, productsElements);
         }
 
         private void AddToProperty(int value, string key, Dictionary<string, int> property)
@@ -155,6 +78,35 @@ namespace ChemistryEquationSolver
             {
                 property.Add(key, value);
             }
+        }
+
+        private static bool IsEqual(Dictionary<string, int> dict, Dictionary<string, int> dict2)
+        {
+            bool equal = false;
+            if (dict.Count == dict2.Count) // Require equal count.
+            {
+                equal = true;
+                foreach (var pair in dict)
+                {
+                    int value;
+                    if (dict2.TryGetValue(pair.Key, out value))
+                    {
+                        // Require value be equal.
+                        if (value != pair.Value)
+                        {
+                            equal = false;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        // Require key be present.
+                        equal = false;
+                        break;
+                    }
+                }
+            }
+            return equal;
         }
     }
 }
