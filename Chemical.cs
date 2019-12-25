@@ -11,14 +11,31 @@ namespace ChemistryEquationSolver
 
         public Chemical(string chemicalInformation)
         {
-            SetValue(chemicalInformation);
+            SetFullValue(chemicalInformation);
             SetCoefficient(chemicalInformation);
             SetElements(chemicalInformation);
+            SetValue(chemicalInformation);
         }
 
         private void SetValue(string chemicalInformation)
         {
-            Value = chemicalInformation;
+            Value = RemoveCoefficient(chemicalInformation);
+        }
+
+        private string RemoveCoefficient(string chemicalInformation)
+        {
+            string chemInfoNoCoefficient = chemicalInformation;
+            if (Char.IsDigit(chemicalInformation[0]))
+            {
+                chemInfoNoCoefficient = chemInfoNoCoefficient.Substring(Coefficient.ToString().Length);
+            }
+
+            return chemInfoNoCoefficient;
+        }
+
+        private void SetFullValue(string chemicalInformation)
+        {
+            FullValue = chemicalInformation;
         }
 
         private void SetCoefficient(string chemicalInformation)
@@ -48,11 +65,7 @@ namespace ChemistryEquationSolver
 
         private void SetElements(string chemicalInformation)
         {
-            string chemInfoNoCoefficient = chemicalInformation;
-            if (Char.IsDigit(chemicalInformation[0]))
-            {
-                chemInfoNoCoefficient = chemInfoNoCoefficient.Substring(Coefficient.ToString().Length);
-            }
+            string chemInfoNoCoefficient = RemoveCoefficient(chemicalInformation);
 
             StringBuilder elements = new StringBuilder();
             foreach (char c in chemInfoNoCoefficient)
@@ -105,5 +118,6 @@ namespace ChemistryEquationSolver
         }
         public int Coefficient { get; private set; }
         public string Value { get; private set; }
+        public string FullValue { get; private set; }
     }
 }
