@@ -45,7 +45,7 @@ namespace ChemistryEquationSolver
 
         private static int[] ElementNumbers(string[] substances)
         {
-            int[] numberOfElements = new int[10];
+            int[] numberOfElements = new int[118];
             var elementNumber = new Dictionary<string, int>
             {
                 {"H", 0},
