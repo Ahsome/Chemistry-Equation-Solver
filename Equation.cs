@@ -53,7 +53,7 @@ namespace ChemistryEquationSolver
             {
                 foreach (var element in reactant.TotalElements.Keys)
                 {
-                    AddToProperty(reactant.TotalElements[element], element, reactantsElements);
+                    Helper.AddToProperty(reactant.TotalElements[element], element, reactantsElements);
                 }
             }
 
@@ -61,52 +61,11 @@ namespace ChemistryEquationSolver
             {
                 foreach (var element in product.TotalElements.Keys)
                 {
-                    AddToProperty(product.TotalElements[element], element, productsElements);
+                    Helper.AddToProperty(product.TotalElements[element], element, productsElements);
                 }
             }
 
-            return IsEqual(reactantsElements, productsElements);
-        }
-
-        private void AddToProperty(int value, string key, Dictionary<string, int> property)
-        {
-            if (property.TryGetValue(key, out int previousValue))
-            {
-                property[key] = previousValue + value;
-            }
-            else
-            {
-                property.Add(key, value);
-            }
-        }
-
-        private static bool IsEqual(Dictionary<string, int> dict, Dictionary<string, int> dict2)
-        {
-            bool equal = false;
-            if (dict.Count == dict2.Count) // Require equal count.
-            {
-                equal = true;
-                foreach (var pair in dict)
-                {
-                    int value;
-                    if (dict2.TryGetValue(pair.Key, out value))
-                    {
-                        // Require value be equal.
-                        if (value != pair.Value)
-                        {
-                            equal = false;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        // Require key be present.
-                        equal = false;
-                        break;
-                    }
-                }
-            }
-            return equal;
+            return Helper.IsEqual(reactantsElements, productsElements);
         }
     }
 }

@@ -85,7 +85,7 @@ namespace ChemistryEquationSolver
                 {
                     value = int.Parse(number);
                 }
-                AddToProperty(value, element, Elements);
+                Helper.AddToProperty(value, element, Elements);
             }
         }
 
@@ -105,17 +105,5 @@ namespace ChemistryEquationSolver
         }
         public int Coefficient { get; private set; }
         public string Value { get; private set; }
-
-        private void AddToProperty(int value, string key, Dictionary<string, int> property)
-        {
-            if (property.TryGetValue(key, out int previousValue))
-            {
-                property[key] = previousValue + value;
-            }
-            else
-            {
-                property.Add(key, value);
-            }
-        }
     }
 }
