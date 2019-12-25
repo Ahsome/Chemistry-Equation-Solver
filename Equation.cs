@@ -10,10 +10,46 @@ namespace ChemistryEquationSolver
     {
         public Equation(string equationString)
         {
-            AddReactants(equationString);
-            AddProducts(equationString);
+            AddChemicals(equationString);
             AddReactantElements();
             AddProductElements();
+        }
+
+        private void AddChemicals(string equationString)
+        {
+            string[] reactants = ExtractReactants(equationString);
+            string[] products = ExtractProducts(equationString);
+
+            foreach (var reactant in reactants)
+            {
+                var chemInfo = ExtractChemicalInformation(reactant);
+                AddToProperty(chemInfo.Coefficient, chemInfo.Name, Reactants);
+            }
+
+            foreach (var product in products)
+            {
+                var chemInfo = ExtractChemicalInformation(product);
+                AddToProperty(chemInfo.Coefficient, chemInfo.Name, Reactants);
+            }
+        }
+
+        private (string Name, int Coefficient) ExtractChemicalInformation(string chemical)
+        {
+            int coefficient = GetCoefficient(chemical);
+            string name = GetName(chemical, coefficient);
+
+            return (name, coefficient);
+        }
+
+        private static string GetName(string chemical, int coefficient)
+        {
+            string name = chemical;
+            if (coefficient != 1)
+            {
+                name = chemical.Substring(coefficient.ToString().Length);
+            }
+
+            return name;
         }
 
         private void AddProductElements()
@@ -83,16 +119,6 @@ namespace ChemistryEquationSolver
         public Dictionary<string, int> Products { get; private set; } = new Dictionary<string, int>();
         public Dictionary<string, int> ReactantElements { get; private set; } = new Dictionary<string, int>();
         public Dictionary<string, int> ProductsElements { get; private set; } = new Dictionary<string, int>();
-        private void AddReactants(string equationString)
-        {
-            string[] reactants = ExtractReactants(equationString);
-            foreach (var reactant in reactants)
-            {
-                int coefficient = GetCoefficient(reactant);
-                string reactantNoCoefficient = reactant.Substring(coefficient.ToString().Length);
-                AddToProperty(coefficient, reactantNoCoefficient, Reactants);
-            }
-        }
 
         private int GetCoefficient(string reactant)
         {
@@ -116,22 +142,6 @@ namespace ChemistryEquationSolver
             else
             {
                 return 1;
-            }
-        }
-
-        private void AddProducts(string equationString)
-        {
-            string[] products = ExtractProducts(equationString);
-            foreach (var product in products)
-            {
-                int coefficient = GetCoefficient(product);
-                string productNoCoefficient = product;
-                if (coefficient != 1)
-                {
-                    productNoCoefficient = product.Substring(coefficient.ToString().Length);
-                }
-
-                AddToProperty(coefficient, productNoCoefficient, Products);
             }
         }
 
