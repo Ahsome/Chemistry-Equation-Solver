@@ -1,14 +1,12 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Double.Solvers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ChemistryEquationSolver
 {
-    class Equation
+    internal class Equation
     {
         public Equation(string equationString)
         {
@@ -16,48 +14,10 @@ namespace ChemistryEquationSolver
             SetValue(equationString);
         }
 
-        private void SetValue(string equationString)
-        {
-            Value = equationString;
-        }
+        public List<Chemical> Products { get; } = new List<Chemical>();
 
-        public override string ToString()
-        {
-            return Value;
-        }
+        public List<Chemical> Reactants { get; } = new List<Chemical>();
 
-        public string Value { get; private set; }
-
-        private void AddChemicals(string equationString)
-        {
-            string[] reactants = ExtractReactants(equationString);
-            string[] products = ExtractProducts(equationString);
-
-            foreach (var reactant in reactants)
-            {
-                var reactantChemical = new Chemical(reactant);
-                Reactants.Add(reactantChemical);
-            }
-
-            foreach (var product in products)
-            {
-                var productChemical = new Chemical(product);
-                Products.Add(productChemical);
-            }
-        }
-
-        private string[] ExtractProducts(string equationString)
-        {
-            return equationString.Split('=')[1].Split('+');
-        }
-
-        private string[] ExtractReactants(string equationString)
-        {
-            return equationString.Split('=')[0].Split('+');
-        }
-
-        public List<Chemical> Reactants { get; private set; } = new List<Chemical>();
-        public List<Chemical> Products { get; private set; } = new List<Chemical>();
         public List<Chemical> TotalChemicals
         {
             get
@@ -67,6 +27,17 @@ namespace ChemistryEquationSolver
                 totalChemicals.AddRange(Products);
                 return totalChemicals;
             }
+        }
+
+        public string Value { get; private set; }
+
+        public string BalancedEquation()
+        {
+            var newCoefficients = CalculateNewCoefficients();
+            return GenerateBalancedString(newCoefficients);
+
+            //TODO: Used when solving same number of equations and variables
+            //var x = A.SolveIterative(b, new MlkBiCgStab());
         }
 
         public bool CheckBalanced()
@@ -93,34 +64,27 @@ namespace ChemistryEquationSolver
             return Helper.IsEqual(reactantsElements, productsElements);
         }
 
-        public string BalancedEquation()
+        public override string ToString()
         {
-            var newCoefficients = CalculateNewCoefficients();
-            var newEquationString = new StringBuilder();
+            return Value;
+        }
 
-            for (int i = 0; i < TotalChemicals.Count; i++)
+        private void AddChemicals(string equationString)
+        {
+            string[] reactants = ExtractReactants(equationString);
+            string[] products = ExtractProducts(equationString);
+
+            foreach (var reactant in reactants)
             {
-                if (newCoefficients[i] != 1)
-                {
-                    newEquationString.Append(newCoefficients[i]);
-                }
-                newEquationString.Append(TotalChemicals[i].Value);
-
-                if (i == Reactants.Count - 1)
-                {
-                    newEquationString.Append("=");
-                }
-                else
-                {
-                    newEquationString.Append("+");
-                }
+                var reactantChemical = new Chemical(reactant);
+                Reactants.Add(reactantChemical);
             }
 
-            newEquationString.Length--;
-            return newEquationString.ToString();
-
-            //TODO: Used when solving same number of equations and variables
-            //var x = A.SolveIterative(b, new MlkBiCgStab());
+            foreach (var product in products)
+            {
+                var productChemical = new Chemical(product);
+                Products.Add(productChemical);
+            }
         }
 
         private Vector<double> CalculateNewCoefficients()
@@ -158,26 +122,55 @@ namespace ChemistryEquationSolver
             var C = ATA.Inverse();
             var ans = C * ATb;
 
-            double smallest = double.MaxValue;
-            foreach (var a in ans)
-            {
-                if (a < smallest)
-                {
-                    smallest = a;
-                }
-            }
+            double smallest = ans.Min();
 
             for (int i = 0; i < ans.Count; i++)
             {
-                ans[i] = Math.Round(ans[i]/smallest);
+                ans[i] = Math.Round(ans[i] / smallest);
             }
 
             return ans;
         }
 
+        private string[] ExtractProducts(string equationString)
+        {
+            return equationString.Split('=')[1].Split('+');
+        }
+
+        private string[] ExtractReactants(string equationString)
+        {
+            return equationString.Split('=')[0].Split('+');
+        }
+
+        private string GenerateBalancedString(Vector<double> newCoefficients)
+        {
+            var newEquationString = new StringBuilder();
+
+            for (int i = 0; i < TotalChemicals.Count; i++)
+            {
+                if (newCoefficients[i] != 1)
+                {
+                    newEquationString.Append(newCoefficients[i]);
+                }
+                newEquationString.Append(TotalChemicals[i].Value);
+
+                if (i == Reactants.Count - 1)
+                {
+                    newEquationString.Append("=");
+                }
+                else
+                {
+                    newEquationString.Append("+");
+                }
+            }
+
+            newEquationString.Length--;
+            return newEquationString.ToString();
+        }
+
         private string[] GetAllElements()
         {
-            var allElements = new List<String>();
+            var allElements = new List<string>();
 
             foreach (var reactant in Reactants)
             {
@@ -202,6 +195,11 @@ namespace ChemistryEquationSolver
             }
 
             return allElements.ToArray();
+        }
+
+        private void SetValue(string equationString)
+        {
+            Value = equationString;
         }
     }
 }

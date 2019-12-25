@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ChemistryEquationSolver
 {
-    class Chemical
+    internal class Chemical
     {
-
         public Chemical(string chemicalInformation)
         {
             SetFullValue(chemicalInformation);
@@ -17,15 +14,32 @@ namespace ChemistryEquationSolver
             SetValue(chemicalInformation);
         }
 
-        private void SetValue(string chemicalInformation)
+        public int Coefficient { get; private set; }
+
+        public Dictionary<string, int> Elements { get; } = new Dictionary<string, int>();
+
+        public string FullValue { get; private set; }
+
+        public Dictionary<string, int> TotalElements
         {
-            Value = RemoveCoefficient(chemicalInformation);
+            get
+            {
+                var totalElements = new Dictionary<string, int>();
+                foreach (var value in Elements.Keys)
+                {
+                    totalElements.Add(value, Elements[value] * Coefficient);
+                }
+
+                return totalElements;
+            }
         }
+
+        public string Value { get; private set; }
 
         private string RemoveCoefficient(string chemicalInformation)
         {
             string chemInfoNoCoefficient = chemicalInformation;
-            if (Char.IsDigit(chemicalInformation[0]))
+            if (char.IsDigit(chemicalInformation[0]))
             {
                 chemInfoNoCoefficient = chemInfoNoCoefficient.Substring(Coefficient.ToString().Length);
             }
@@ -33,17 +47,12 @@ namespace ChemistryEquationSolver
             return chemInfoNoCoefficient;
         }
 
-        private void SetFullValue(string chemicalInformation)
-        {
-            FullValue = chemicalInformation;
-        }
-
         private void SetCoefficient(string chemicalInformation)
         {
             string coefficientString = "";
             foreach (var character in chemicalInformation)
             {
-                if (Char.IsDigit(character))
+                if (char.IsDigit(character))
                 {
                     coefficientString += character;
                 }
@@ -70,7 +79,7 @@ namespace ChemistryEquationSolver
             StringBuilder elements = new StringBuilder();
             foreach (char c in chemInfoNoCoefficient)
             {
-                if (Char.IsUpper(c) && elements.Length > 0)
+                if (char.IsUpper(c) && elements.Length > 0)
                 {
                     elements.Append(' ');
                 };
@@ -83,7 +92,7 @@ namespace ChemistryEquationSolver
                 string number = "";
                 foreach (var c in elementWithNum.ToString())
                 {
-                    if (Char.IsLetter(c))
+                    if (char.IsLetter(c))
                     {
                         element += c;
                     }
@@ -94,7 +103,7 @@ namespace ChemistryEquationSolver
                 }
 
                 int value = 1;
-                    if (!number.Equals(""))
+                if (!number.Equals(""))
                 {
                     value = int.Parse(number);
                 }
@@ -102,22 +111,14 @@ namespace ChemistryEquationSolver
             }
         }
 
-        public Dictionary<string, int> Elements { get; private set; } = new Dictionary<string, int>();
-        public Dictionary<string, int> TotalElements
+        private void SetFullValue(string chemicalInformation)
         {
-            get
-            {
-                var totalElements = new Dictionary<string, int>();
-                foreach (var value in Elements.Keys)
-                {
-                    totalElements.Add(value, Elements[value]*Coefficient);
-                }
-
-                return totalElements;
-            }
+            FullValue = chemicalInformation;
         }
-        public int Coefficient { get; private set; }
-        public string Value { get; private set; }
-        public string FullValue { get; private set; }
+
+        private void SetValue(string chemicalInformation)
+        {
+            Value = RemoveCoefficient(chemicalInformation);
+        }
     }
 }
