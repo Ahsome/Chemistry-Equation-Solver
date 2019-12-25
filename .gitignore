@@ -187,3 +187,7 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+.vs/ChemistryEquationSolver/v16/Server/sqlite3/storage.ide-wal
+.vs/ChemistryEquationSolver/v16/Server/sqlite3/storage.ide-shm
+.vs/ChemistryEquationSolver/v16/Server/sqlite3/storage.ide
+.vs/ChemistryEquationSolver/v16/Server/sqlite3/db.lock
